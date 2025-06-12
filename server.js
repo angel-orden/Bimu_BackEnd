@@ -161,19 +161,40 @@ app.post('/searchRoutes', async (req, res) => {
   try {
     const params = req.body;
     let query = {};
+
+    // 1. Filtro por dificultad si está
     if (params.difficulty !== undefined && params.difficulty !== null)
       query.difficulty = params.difficulty;
-    if (params.location) {
-      query['locationStart.latitude'] = params.location.latitude;
-      query['locationStart.longitude'] = params.location.longitude;
+
+    // 2. Filtro geoespacial (si hay location y radio)
+    if (
+      params.location &&
+      typeof params.location.latitude === 'number' &&
+      typeof params.location.longitude === 'number'
+    ) {
+      // radio en km o metros, según tu app
+      const radiusKm = params.radius && typeof params.radius === 'number'
+        ? params.radius
+        : 25; // valor por defecto (25 km)
+
+      // $geoWithin y $centerSphere (radio en radianes: km / 6378.1)
+      query['locationStart'] = {
+        $geoWithin: {
+          $centerSphere: [
+            [params.location.longitude, params.location.latitude],
+            radiusKm / 6378.1
+          ]
+        }
+      };
     }
-    if (params.fromDate || params.toDate) {
-      query.timeStart = {};
-      if (params.fromDate) query.timeStart.$gte = params.fromDate;
-      if (params.toDate) query.timeStart.$lte = params.toDate;
-    }
+
+    // 3. Filtro opcional por fecha (no lo usas por defecto)
+    // ...
+
+    // Búsqueda y respuesta
     const routes = await client.db(dbName).collection(routesCollection).find(query).toArray();
     res.json(routes);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
