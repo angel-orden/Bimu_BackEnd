@@ -205,7 +205,7 @@ app.get('/getRouteById/:routeId', async (req, res) => {
   try {
     const routeId = req.params.routeId;
     // Convertimos el string a ObjectId para buscar en MongoDB
-    const route = await client.db(dbName).collection('routes')
+    const route = await client.db(dbName).collection(routesCollection)
       .findOne({ _id: new ObjectId(routeId) });
     if (!route) {
       return res.status(404).json({ error: "Route not found" });
