@@ -200,6 +200,23 @@ app.post('/searchRoutes', async (req, res) => {
   }
 });
 
+// Obtener una ruta por su ID
+app.get('/getRouteById/:routeId', async (req, res) => {
+  try {
+    const routeId = req.params.routeId;
+    // Convertimos el string a ObjectId para buscar en MongoDB
+    const route = await client.db(dbName).collection('routes')
+      .findOne({ _id: new ObjectId(routeId) });
+    if (!route) {
+      return res.status(404).json({ error: "Route not found" });
+    }
+    res.json(route);
+  } catch (error) {
+    console.error('Error fetching route by id:', error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // === OUTING ENDPOINTS ===
 
 // Añadir Outing
