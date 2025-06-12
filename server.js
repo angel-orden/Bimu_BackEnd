@@ -10,7 +10,7 @@ app.use(express.json());
 const uri = "mongodb+srv://angel:QVrnhO1SAnyCWOX9@serverlessinstance0.jpasihl.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0";
 const client = new MongoClient(uri);
 
-const dbName = "bimu";
+const dbName = "BYMU";
 const usersCollection = "user";
 const routesCollection = "route";
 const outingsCollection = "outing";
