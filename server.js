@@ -227,23 +227,25 @@ app.delete('/deleteOuting/:outingId', async (req, res) => {
   }
 });
 
-// Buscar Outings por userId
-app.get('/findOutingsByUser/:userId', async (req, res) => {
+// Devuelve solo los routeId de las salidas del usuario
+app.get('/getRoutesByUser/:userId', async (req, res) => {
   try {
     const outings = await client.db(dbName).collection(outingsCollection)
-      .find({ userId: req.params.userId }).toArray();
-    res.json(outings);
+      .find({ userId: req.params.userId }).project({ routeId: 1, _id: 0 }).toArray();
+    const routeIds = outings.map(o => o.routeId);
+    res.json(routeIds);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Buscar Outings por routeId
-app.get('/findOutingsByRoute/:routeId', async (req, res) => {
+// Devuelve solo los userId de las salidas para esa ruta
+app.get('/getUsersByRoute/:routeId', async (req, res) => {
   try {
     const outings = await client.db(dbName).collection(outingsCollection)
-      .find({ routeId: req.params.routeId }).toArray();
-    res.json(outings);
+      .find({ routeId: req.params.routeId }).project({ userId: 1, _id: 0 }).toArray();
+    const userIds = outings.map(o => o.userId);
+    res.json(userIds);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
