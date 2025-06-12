@@ -11,6 +11,8 @@ const uri = "mongodb+srv://angel:QVrnhO1SAnyCWOX9@serverlessinstance0.jpasihl.mo
 const client = new MongoClient(uri);
 
 const dbName = "BYMU";
+console.log('Conectando a la base de datos:', dbName);
+
 const usersCollection = "user";
 const routesCollection = "route";
 const outingsCollection = "outing";
@@ -21,11 +23,9 @@ const outingsCollection = "outing";
 app.post('/registerUser', async (req, res) => {
   try {
     const user = req.body;
-    // Chequeo de existencia por email
     const exists = await client.db(dbName).collection(usersCollection)
       .findOne({ email: user.email });
     if (exists) return res.status(400).json({ error: "User already exists" });
-    // OJO: la contraseña se guarda tal cual, para TFG está bien (pero en producción deberías hacer hash).
     const result = await client.db(dbName).collection(usersCollection).insertOne(user);
     res.json({ ...user, _id: result.insertedId });
   } catch (err) {
@@ -39,8 +39,13 @@ app.put('/editUser/:id', async (req, res) => {
     const { id } = req.params;
     const fields = req.body;
     const result = await client.db(dbName).collection(usersCollection)
-      .findOneAndUpdate({ _id: new ObjectId(id) }, { $set: fields }, { returnDocument: "after" });
-    res.json(result.value);
+      .findOneAndUpdate(
+        { _id: new ObjectId(id) }, 
+        { $set: fields }, 
+        { returnDocument: "after" }
+      );
+    if (result.value) res.json(result.value);
+    else res.status(404).json({ error: "User not found" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -49,8 +54,12 @@ app.put('/editUser/:id', async (req, res) => {
 // Borrar usuario por _id
 app.delete('/deleteUser/:id', async (req, res) => {
   try {
-    await client.db(dbName).collection(usersCollection).deleteOne({ _id: new ObjectId(req.params.id) });
-    res.sendStatus(204);
+    const deleteResult = await client.db(dbName).collection(usersCollection).deleteOne({ _id: new ObjectId(req.params.id) });
+    if (deleteResult.deletedCount === 1) {
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -114,8 +123,13 @@ app.put('/editRoute/:routeId', async (req, res) => {
     const { routeId } = req.params;
     const fields = req.body;
     const result = await client.db(dbName).collection(routesCollection)
-      .findOneAndUpdate({ _id: new ObjectId(routeId) }, { $set: fields }, { returnDocument: "after" });
-    res.json(result.value);
+      .findOneAndUpdate(
+        { _id: new ObjectId(routeId) }, 
+        { $set: fields }, 
+        { returnDocument: "after" }
+      );
+    if (result.value) res.json(result.value);
+    else res.status(404).json({ error: "Route not found" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -124,8 +138,12 @@ app.put('/editRoute/:routeId', async (req, res) => {
 // Borrar ruta por _id
 app.delete('/deleteRoute/:routeId', async (req, res) => {
   try {
-    await client.db(dbName).collection(routesCollection).deleteOne({ _id: new ObjectId(req.params.routeId) });
-    res.sendStatus(204);
+    const deleteResult = await client.db(dbName).collection(routesCollection).deleteOne({ _id: new ObjectId(req.params.routeId) });
+    if (deleteResult.deletedCount === 1) {
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "Route not found" });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -139,7 +157,6 @@ app.post('/searchRoutes', async (req, res) => {
     if (params.difficulty !== undefined && params.difficulty !== null)
       query.difficulty = params.difficulty;
     if (params.location) {
-      // Para búsqueda exacta; para cercanía haría falta lógica geoespacial.
       query['locationStart.latitude'] = params.location.latitude;
       query['locationStart.longitude'] = params.location.longitude;
     }
@@ -171,8 +188,12 @@ app.post('/addOuting', async (req, res) => {
 // Borrar Outing por _id
 app.delete('/deleteOuting/:outingId', async (req, res) => {
   try {
-    await client.db(dbName).collection(outingsCollection).deleteOne({ _id: new ObjectId(req.params.outingId) });
-    res.sendStatus(204);
+    const deleteResult = await client.db(dbName).collection(outingsCollection).deleteOne({ _id: new ObjectId(req.params.outingId) });
+    if (deleteResult.deletedCount === 1) {
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "Outing not found" });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
