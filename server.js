@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // Conexión a MongoDB Atlas
-const uri = "mongodb+srv://angel:QVrnhO1SAnyCWOX9@serverlessinstance0.jpasihl.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0";
+const uri = "mongodb+srv://angel:Inamorta5@serverlessinstance0.jpasihl.mongodb.net/?retryWrites=true&w=majority&appName=ServerlessInstance0";
 const client = new MongoClient(uri);
 
 const dbName = "BYMU";
