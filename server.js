@@ -124,11 +124,13 @@ app.post('/addRoute', async (req, res) => {
   }
 });
 
-// Editar ruta por _id
 app.put('/editRoute/:routeId', async (req, res) => {
   try {
     const { routeId } = req.params;
     const fields = req.body;
+    // --- Añade aquí el log para depuración ---
+    console.log('Editando ruta con id:', routeId);
+    // -----------------------------------------
     const result = await client.db(dbName).collection(routesCollection)
       .findOneAndUpdate(
         { _id: new ObjectId(routeId) }, 
