@@ -129,15 +129,13 @@ app.put('/editRoute/:routeId', async (req, res) => {
   try {
     const { routeId } = req.params;
     const fields = req.body;
-    // --- AQUÍ AÑADE EL LOG ---
     console.log('Editando ruta con id:', routeId);
-    console.log('Campos para actualizar:', fields); // <--- AÑADE ESTA LÍNEA
-    // --------------------------
+    console.log('Campos para actualizar:', fields);
     const result = await client.db(dbName).collection(routesCollection)
       .findOneAndUpdate(
         { _id: new ObjectId(routeId) }, 
         { $set: fields }, 
-        { returnDocument: "after" }
+        { returnOriginal: false }  // <- CAMBIA ESTO
       );
     if (result.value) res.json(result.value);
     else res.status(404).json({ error: "Route not found" });
@@ -145,6 +143,7 @@ app.put('/editRoute/:routeId', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 // Borrar ruta por _id
