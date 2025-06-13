@@ -137,6 +137,7 @@ app.put('/editRoute/:routeId', async (req, res) => {
         { $set: fields }, 
         { returnOriginal: false }  // <- CAMBIA ESTO
       );
+    console.log('Resultado de findOneAndUpdate:', result);
     if (result.value) res.json(result.value);
     else res.status(404).json({ error: "Route not found" });
   } catch (err) {
