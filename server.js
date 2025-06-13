@@ -124,13 +124,15 @@ app.post('/addRoute', async (req, res) => {
   }
 });
 
+//Editar una ruta por Id
 app.put('/editRoute/:routeId', async (req, res) => {
   try {
     const { routeId } = req.params;
     const fields = req.body;
-    // --- Añade aquí el log para depuración ---
+    // --- AQUÍ AÑADE EL LOG ---
     console.log('Editando ruta con id:', routeId);
-    // -----------------------------------------
+    console.log('Campos para actualizar:', fields); // <--- AÑADE ESTA LÍNEA
+    // --------------------------
     const result = await client.db(dbName).collection(routesCollection)
       .findOneAndUpdate(
         { _id: new ObjectId(routeId) }, 
@@ -143,6 +145,7 @@ app.put('/editRoute/:routeId', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Borrar ruta por _id
 app.delete('/deleteRoute/:routeId', async (req, res) => {
