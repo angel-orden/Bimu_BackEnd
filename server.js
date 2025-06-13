@@ -131,19 +131,25 @@ app.put('/editRoute/:routeId', async (req, res) => {
     const fields = req.body;
     console.log('Editando ruta con id:', routeId);
     console.log('Campos para actualizar:', fields);
-    const result = await client.db(dbName).collection(routesCollection)
-      .findOneAndUpdate(
-        { _id: new ObjectId(routeId) }, 
-        { $set: fields }, 
-        { returnOriginal: false }  // <- CAMBIA ESTO
+
+    const updateResult = await client.db(dbName).collection(routesCollection)
+      .updateOne(
+        { _id: new ObjectId(routeId) },
+        { $set: fields }
       );
-    console.log('Resultado de findOneAndUpdate:', result);
-    if (result.value) res.json(result.value);
-    else res.status(404).json({ error: "Route not found" });
+
+    if (updateResult.matchedCount === 1) {
+      const updatedRoute = await client.db(dbName).collection(routesCollection)
+        .findOne({ _id: new ObjectId(routeId) });
+      res.json(updatedRoute);
+    } else {
+      res.status(404).json({ error: "Route not found" });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 
