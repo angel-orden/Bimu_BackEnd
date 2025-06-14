@@ -281,6 +281,18 @@ app.get('/getUsersByRoute/:routeId', async (req, res) => {
   }
 });
 
+// Obtener la outing concreta de un usuario en una ruta
+app.get('/getUserOuting/:userId/:routeId', async (req, res) => {
+  try {
+    const outing = await client.db(dbName).collection(outingsCollection)
+      .findOne({ userId: req.params.userId, routeId: req.params.routeId });
+    if (outing) res.json(outing);
+    else res.status(404).json({ error: "Outing not found" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Puerto
 const PORT = process.env.PORT || 3000;
 client.connect().then(() => {
