@@ -117,6 +117,19 @@ app.post('/login', async (req, res) => {
 app.post('/addRoute', async (req, res) => {
   try {
     const route = req.body;
+    if (
+      route.locationStart &&
+      route.locationStart.latitude !== undefined &&
+      route.locationStart.longitude !== undefined
+    ) {
+      route.locationStart = {
+        type: "Point",
+        coordinates: [
+          Number(route.locationStart.longitude),
+          Number(route.locationStart.latitude)
+        ]
+      };
+    }
     const result = await client.db(dbName).collection(routesCollection).insertOne(route);
     res.json({ ...route, _id: result.insertedId });
   } catch (err) {
@@ -124,20 +137,26 @@ app.post('/addRoute', async (req, res) => {
   }
 });
 
-//Editar una ruta por Id
+// Editar ruta
 app.put('/editRoute/:routeId', async (req, res) => {
   try {
     const { routeId } = req.params;
     const fields = req.body;
-    console.log('Editando ruta con id:', routeId);
-    console.log('Campos para actualizar:', fields);
-
+    if (
+      fields.locationStart &&
+      fields.locationStart.latitude !== undefined &&
+      fields.locationStart.longitude !== undefined
+    ) {
+      fields.locationStart = {
+        type: "Point",
+        coordinates: [
+          Number(fields.locationStart.longitude),
+          Number(fields.locationStart.latitude)
+        ]
+      };
+    }
     const updateResult = await client.db(dbName).collection(routesCollection)
-      .updateOne(
-        { _id: new ObjectId(routeId) },
-        { $set: fields }
-      );
-
+      .updateOne({ _id: new ObjectId(routeId) }, { $set: fields });
     if (updateResult.matchedCount === 1) {
       const updatedRoute = await client.db(dbName).collection(routesCollection)
         .findOne({ _id: new ObjectId(routeId) });
@@ -149,9 +168,6 @@ app.put('/editRoute/:routeId', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
 
 // Borrar ruta por _id
 app.delete('/deleteRoute/:routeId', async (req, res) => {
