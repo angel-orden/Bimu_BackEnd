@@ -200,9 +200,9 @@ app.post('/searchRoutes', async (req, res) => {
       typeof params.location.longitude === 'number'
     ) {
       // radio en km o metros, según tu app
-      const radiusKm = params.radius && typeof params.radius === 'number'
-        ? params.radius
-        : 25; // valor por defecto (25 km)
+      const radiusKm = params.radiusKm && typeof params.radiusKm === 'number'
+        ? params.radiusKm
+        : 25;// valor por defecto (25 km)
 
       // $geoWithin y $centerSphere (radio en radianes: km / 6378.1)
       query['locationStart'] = {
